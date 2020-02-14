@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+
+  pulsar:
+    image: apachepulsar/pulsar:2.4.2
+    ports:
+      - "8080:8080" #broker admin
+      - "6650:6650" #broker service-url
+    environment:
+      - PULSAR_MEM=" -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"
+    volumes:
+      - $PWD/data/pulsar:/pulsar/data
+    command: >
+      /bin/bash -c
+      "bin/apply-config-from-env.py conf/standalone.conf
+      && bin/pulsar standalone"
+
+  # Use http://pulsar:8080 in manager http://localhost:9527/
+  # with pulsar/pulsar credentials
+  #
+  # Test startup with commands : 
+  # pulsar-client produce my-topic --messages "hello-pulsar"
+  # and
+  # pulsar-client consume my-topic -s "first-subscription"
+  # to be sure broker has finished starting and everything is ok
+  manager:
+    image: apachepulsar/pulsar-manager:v0.1.0
+    ports:
+      - "9527:9527" 
+    environment:
+      - REDIRECT_HOST=http://172.17.0.1 #docker host ip from container
+      - REDIRECT_PORT=9527
+      - DRIVER_CLASS_NAME=org.postgresql.Driver
+      - URL=jdbc:postgresql://127.0.0.1:5432/pulsar_manager
+      - USERNAME=pulsar
+      - PASSWORD=pulsar
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - $PWD/data/pulsar-manager:/data
+    command:
+      "/bin/sh"
+
+      

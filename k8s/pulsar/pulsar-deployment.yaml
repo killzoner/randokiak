@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: pulsar
+  name: pulsar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulsar
+  template:
+    metadata:
+      labels:
+        app: pulsar
+    spec:
+      containers:
+      - args:
+        - /bin/bash
+        - -c
+        - bin/apply-config-from-env.py conf/standalone.conf && bin/pulsar standalone
+        env:
+        - name: PULSAR_MEM
+          value: '" -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"'
+        image: apachepulsar/pulsar:2.4.2
+        name: pulsar
+        ports:
+        - containerPort: 8080
+        - containerPort: 6650
+        volumeMounts:
+        - mountPath: /pulsar/data
+          name: pulsar-claim0
+      volumes:
+      - name: pulsar-claim0
+        persistentVolumeClaim:
+          claimName: pulsar-claim0

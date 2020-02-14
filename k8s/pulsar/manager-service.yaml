@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: manager
+  name: manager
+spec:
+  ports:
+  - name: "9527"
+    port: 9527
+    targetPort: 9527
+  selector:
+    app: manager

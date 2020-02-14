@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package protocols;
+
+option go_package = "protocols;protocols";
+
+import "randomprofile.proto";
+
+service Randomizer {
+  rpc GetProfile (ProfileRequest) returns (ProfileReply) {}
+}
+
+// The request message containing the user's name.
+message ProfileRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message ProfileReply {
+  randomprofile.Profile profile = 1;
+}

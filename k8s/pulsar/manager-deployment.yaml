@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: manager
+  name: pulsar-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: manager
+  template:
+    metadata:
+      labels:
+        app: manager
+    spec:
+      containers:
+      - args:
+        - /bin/sh
+        env:
+        - name: DRIVER_CLASS_NAME
+          value: org.postgresql.Driver
+        - name: LOG_LEVEL
+          value: DEBUG
+        - name: PASSWORD
+          value: pulsar
+        - name: REDIRECT_HOST
+          value: http://172.17.0.1
+        - name: REDIRECT_PORT
+          value: "9527"
+        - name: URL
+          value: jdbc:postgresql://127.0.0.1:5432/pulsar_manager
+        - name: USERNAME
+          value: pulsar
+        image: apachepulsar/pulsar-manager:v0.1.0
+        name: manager
+        ports:
+        - containerPort: 9527
+        volumeMounts:
+        - mountPath: /data
+          name: manager-claim0
+      volumes:
+      - name: manager-claim0
+        persistentVolumeClaim:
+          claimName: manager-claim0

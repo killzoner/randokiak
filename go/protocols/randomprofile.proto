@@ -1,0 +1,85 @@
+syntax = "proto3";
+package randomprofile;
+
+option go_package = "protocols;protocols";
+
+
+message ID {
+  string name = 1;
+}
+
+message Location {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  int64 postcode = 4;
+}
+
+message Login {
+  string username = 1;
+  string password = 2;
+  string salt = 3;
+  string md5 = 4;
+  string sha1 = 5;
+  string sha256 = 6;
+}
+
+message Name {
+  string first = 1;
+  string last = 2;
+  string title = 3;
+}
+
+message Picture {
+  string large = 1;
+  string medium = 2;
+  string thumbnail = 3;
+}
+
+message Profile {
+  string gender = 1;
+  ProfileName name = 2;
+  ProfileLocation location = 3;
+  string email = 4;
+  ProfileLogin login = 5;
+  string dob = 6;
+  string registered = 7;
+  string phone = 8;
+  string cell = 9;
+  ProfileId id = 10;
+  ProfilePicture picture = 11;
+  string nat = 12;
+}
+
+message ProfileId {
+  string name = 1;
+}
+
+message ProfileLocation {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  int64 postcode = 4;
+}
+
+message ProfileLogin {
+  string username = 1;
+  string password = 2;
+  string salt = 3;
+  string md5 = 4;
+  string sha1 = 5;
+  string sha256 = 6;
+}
+
+message ProfileName {
+  string first = 1;
+  string last = 2;
+  string title = 3;
+}
+
+message ProfilePicture {
+  string large = 1;
+  string medium = 2;
+  string thumbnail = 3;
+}
+
