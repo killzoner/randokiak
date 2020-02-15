@@ -1,0 +1,31 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        appName: randokiak-api
+        appPackage: api
+    environment: 
+      - PORT=8082
+      - GEN_HOST=gen
+      - GEN_PORT=50051
+      - PULSAR_HOST=10.0.2.2 #host adress in docker VM
+      - PULSAR_PORT=6650
+      - TOPIC=my-topic
+      - NB_FETCH_PROFILE=10
+    ports:
+      # so app accessible through `docker-macchine ip` adress
+      - "8082:8082"
+  gen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        appName: randokiak-gen
+        appPackage: gen
+    environment: 
+      - PORT=50051
+    # ports:
+    #   - "50051:50051"

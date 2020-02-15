@@ -1,5 +1,8 @@
 package randomprofile
 
+//this file is an extract from https://github.com/Pallinder/go-randomdata/blob/master/fullprofile.go
+//with un-nested structure so it can be used to generate related proto file
+
 type ProfileName struct {
 	First string `json:"first"`
 	Last  string `json:"last"`
@@ -33,7 +36,6 @@ type ProfilePicture struct {
 }
 
 // Profile : alias to generate proto
-//proteus:generate
 type Profile struct {
 	Gender     string          `json:"gender"`
 	Name       ProfileName     `json:"name"`

@@ -1,0 +1,24 @@
+# see https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+# check it's working with curl --verbose http://<host_ip>:9200/_cat/master?v or /_cat/nodes?v&pretty
+# don't forget doing 
+# docker-machine rm default
+# docker-machine create -d virtualbox --virtualbox-cpu-count=2 --virtualbox-memory=2048 --virtualbox-disk-size=50000 default
+# docker-machine ssh
+# sudo sysctl -w vm.max_map_count=262144
+
+version: '3'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.0
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" #warning, will not start in docker-machine if memory is too low (less than 2gb)
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"

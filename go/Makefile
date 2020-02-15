@@ -49,30 +49,19 @@ generateAll:
 	done
 
 go2proto: 
-	cd ./gotoproto \
-	&& go2proto -f ./basicprotos/randomprofile -p ./basicprotos/randomprofile \
-	&& mv ./basicprotos/randomprofile/output.proto ./basicprotos/randomprofile/randomprofile.proto \
-	&& sed -i 's/package proto;/package randomprofile;\n\noption go_package = "protocols;protocols";/g' ./basicprotos/randomprofile/randomprofile.proto \
-	&& sed -i '/interface/d' ./basicprotos/randomprofile/randomprofile.proto \
-	&& mv ./basicprotos/randomprofile/randomprofile.proto ../protocols/randomprofile.proto
-# TODO
-# go2protoAll:
-# 	for elt in ${GOTOPROTOS}; do \
-# 		$(eval TMP := $(shell echo "test")) \
-# 		echo "hi $(TMP)/hi.txt"; \
-# 		echo "$$elt"; \
-# 		TMP = $(subst ./g,./o,$${elt}); \
-# 		echo "TEST"; \
-# 	done
-
-#make go2proto file=$(subst ee,EE,$$(elt)); \
-#echo $(${elt}:g/%=%); \
+	go2proto -f ./gotoproto -p ./gotoproto \
+	&& cd ./gotoproto \
+	&& mv output.proto randomprofile.proto \
+	&& sed -i 's/package proto;/package randomprofile;\n\noption go_package = "protocols;protocols";/g' randomprofile.proto \
+	&& sed -i '/interface/d' randomprofile.proto \
+	&& mv randomprofile.proto ../protocols/randomprofile.proto
 
 # to be run with project in GOPATH, since proteus does not support Go modules
-proteus:
-	proteus proto -f ./gotoproto \
-		-p $(ROOT_GITHUB)/go/gotoproto/basicprotos/randomprofile \
-		--verbose
+# proteus seems to generate proto v2, don't know why, so exit
+# proteus:
+# 	proteus proto -f ./gotoproto \
+# 		-p $(ROOT_GITHUB)/go/gotoproto/basicprotos/randomprofile \
+# 		--verbose
 
 install:
 	go get \
@@ -82,5 +71,4 @@ install:
 		github.com/gogo/protobuf/protoc-gen-gogoslick \
 		github.com/gogo/protobuf/proto \
 		github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
-		github.com/anjmao/go2proto \
-		gopkg.in/src-d/proteus.v1
+		github.com/anjmao/go2proto

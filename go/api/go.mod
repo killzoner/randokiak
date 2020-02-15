@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/apache/pulsar-client-go v0.0.0-20200214184451-fc390a6a37f3
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-openapi/spec v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.7 // indirect
@@ -15,6 +16,9 @@ require (
 	google.golang.org/grpc v1.27.1
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	rdk.io/protocols v0.0.0
+	rdk.io/utils v0.0.0
 )
 
 replace rdk.io/protocols v0.0.0 => ../protocols
+
+replace rdk.io/utils v0.0.0 => ../utils

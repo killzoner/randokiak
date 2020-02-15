@@ -1,15 +1,22 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"randokiak-api/controller"
 
 	_ "randokiak-api/docs"
 
+	"rdk.io/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 
 	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+const (
+	defaultPort = "8082"
 )
 
 // @title Swagger Example API
@@ -48,5 +55,6 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
 	})
-	r.Run(":8080") // listen and serve on 0.0.0.0:8080
+	port := fmt.Sprintf(":%s", utils.GetEnv("PORT", defaultPort))
+	r.Run(port) // listen and serve on 0.0.0.0:8080
 }
