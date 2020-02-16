@@ -1,18 +1,35 @@
-language: go
 
-go:
-- 1.13.x
-
-cache:
-    directories:
-      - $GOPATH/pkg/mod
-
-env:
-    global: 
-        - GO111MODULE=on
-
-install: true
-
-script:
-    - cd $TRAVIS_BUILD_DIR/go/api && go build
-    - cd $TRAVIS_BUILD_DIR/go/gen && go build
+matrix:
+    include:
+      - language: go
+        go:
+          - 1.13.x
+        cache:
+            directories:
+                - $GOPATH/pkg/mod
+        env:
+            global: 
+                - GO111MODULE=on
+        install: true
+        script:
+          - cd $TRAVIS_BUILD_DIR/go/api && go build
+          - cd $TRAVIS_BUILD_DIR/go/gen && go build
+  
+      - language: nodejs
+        #### Config for tests with chrome, not set to lighten build   
+        # dist: trusty
+        # sudo: required
+        # addons:
+        #     chrome: stable
+        language: node_js
+        node_js:
+            - "12.16.0"
+        before_install:
+            - npm install -g yarn
+        install:
+            - cd $TRAVIS_BUILD_DIR/webapp && yarn install --frozen-lockfile
+        script:
+            - cd $TRAVIS_BUILD_DIR/webapp
+            - yarn run build:prod
+            - yarn run lint:full
+            # - yarn run test ## not set to lighten build

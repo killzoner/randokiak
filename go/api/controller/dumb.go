@@ -23,7 +23,7 @@ const (
 	defaultGenPort         = "50051"
 	defaultPulsarHost      = "localhost"
 	defaultPulsarPort      = "6650"
-	defaultTopic           = "my-topic"
+	defaultTopic           = "randokiak-topic"
 	defaultTnbFetchProfile = "50"
 )
 
