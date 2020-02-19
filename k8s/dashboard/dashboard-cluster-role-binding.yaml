@@ -1,5 +1,3 @@
-#kubectl apply -f dashboard-cluster-role-binding.yaml
-
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webapp
+  name: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - env:
+        - name: ELASTIC_HOST
+          value: elasticsearch
+        - name: ELASTIC_PORT
+          value: "9200"
+        - name: NGINX_LISTEN_PORT
+          value: "4200"
+        - name: RDKAPI_API_HOST
+          value: rdkapi
+        - name: RDKAPI_API_PORT
+          value: "8082"
+        image: randokiak/webapp:0.0.1
+        # imagePullPolicy: Never # for use with minikube
+        name: webapp

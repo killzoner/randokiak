@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rdkgen
+  name: rdkgen
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rdkgen
+    spec:
+      containers:
+      - env:
+        - name: PORT
+          value: "50051"
+        image: randokiak/randokiak-gen:0.0.1
+        imagePullPolicy: Never # for use with minikube
+        name: rdkgen

@@ -1,7 +1,7 @@
 version: '3'
 services:
   api:
-    image: randokiak-api
+    image: randokiak/randokiak-api:0.0.1
     build:
       context: .
       dockerfile: Dockerfile
@@ -20,7 +20,7 @@ services:
       # so app accessible through `docker-macchine ip` adress
       - "8082:8082"
   gen:
-    image: randokiak-gen
+    image: randokiak/randokiak-gen:0.0.1
     build:
       context: .
       dockerfile: Dockerfile

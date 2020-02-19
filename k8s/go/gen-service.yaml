@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: rdkgen
+  name: rdkgen
+spec:
+  ports:
+  - name: "50051"
+    port: 50051
+    targetPort: 50051
+  selector:
+    app: rdkgen

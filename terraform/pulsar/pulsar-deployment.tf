@@ -34,8 +34,19 @@ resource "kubernetes_deployment" "pulsar" {
 
         container {
           name  = "pulsar"
-          image = "apachepulsar/pulsar:2.4.2"
+          # image = "apachepulsar/pulsar:2.5.0"
+          image = "randokiak/pulsar-elastic-sink:0.0.1"
+          #imagePullPolicy = "Never" # for use with minikube
           args  = ["/bin/bash", "-c", "bin/apply-config-from-env.py conf/standalone.conf && bin/pulsar standalone"]
+          # #auto deploy connector function
+          ## TODO: see for auto deploy
+          # lifecycle {
+          #   post_start {
+          #     exec {
+          #       command = ["/bin/bash", "-c", "/pulsar/create-connector-pulsar.sh"]
+          #     }
+          #   }
+          # }
 
           port {
             container_port = 8080

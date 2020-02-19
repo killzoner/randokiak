@@ -1,0 +1,9 @@
+//http://localhost:9200/randokiak-index/_search
+{
+	"size": 0,
+    "aggs" : {
+        "genres" : {
+            "terms" : { "field" : "profile.gender.keyword" } 
+        }
+    }
+}

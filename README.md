@@ -123,6 +123,15 @@ You can access your pod using (see <https://github.com/kubernetes-sigs/kind/issu
 
 (for example <http://172.17.0.2:31352/)>
 
+## Use local images in Minikube (no special config for kind)
+
+Follow these steps:
+
+- Set the environment variables with eval $(minikube docker-env)
+- Build the image with the Docker daemon of Minikube (eg docker build -t my-image .)
+- Set the image in the pod spec like the build tag (eg my-image)
+- Set the imagePullPolicy to Never, otherwise Kubernetes will try to download the image.
+
 ## Useful resources
 
 - Kompose, tool to convert docker-compose files to k8s YAML (<https://github.com/kubernetes/kompose>)

@@ -1,0 +1,20 @@
+{
+    "/elasticsearch": {
+        "target": "http://localhost:9200",
+        "secure": false,
+        "pathRewrite": {
+            "^/elasticsearch": ""
+        },
+        "changeOrigin": true,
+        "logLevel": "debug"
+    },
+    "/rdkapi": {
+        "target": "http://localhost:8082",
+        "secure": false,
+        "pathRewrite": {
+            "^/rdkapi": ""
+        },
+        "changeOrigin": true,
+        "logLevel": "debug"
+    }
+}

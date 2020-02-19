@@ -13,4 +13,4 @@ spec:
     port: 6650
     targetPort: 6650
   selector:
-    app: manager
+    app: pulsar
