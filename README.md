@@ -6,133 +6,52 @@ Random characters exposed in a very complicated but instructive way
 
 ## Getting started
 
-On windows, install `scoop` (<https://github.com/lukesampson/scoop),> then all the necessary elements:
+### Why this project
 
-- `scoop bucket add extras`
-- `scoop portable-virtualbox terraform helm minikube kubectl`
+I said "Nicolas, say the words !". And Nicolas said :
 
-- `minikube start`
-- `minikube addons enable ingress` #enable ingress for nginx example
-See <https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/>
-- `minikube dashboard`
-- `terraform plan`
-- `terraform apply`
+- Golang
+- Protobuf / GRPC
+- Elasticsearch
+- Apache Pulsar
+- Kubernetes (k8s)
+- Terraform
+- Typescript
+- Docker / docker-compose
+- ~~Helm~~
+- ~~Ansible~~
+- ~~Ruby~~
 
-You can replace minikube with `kind` if you prefer to leverage existing docker installation (<https://github.com/kubernetes-sigs/kind)>
+I put aside the last crossed items, and added Angular on top of Typescript (because, why not ! - I really like Angular), and came up with a project mixing all these together to get my hands on them.
 
-Also see:
+The project is named `Randokiak`, a pun with the word 'random' and the name of a company.
+The goal is to... well, generate random characters that you can see in the webapp once it has been swallowed by the whole machinery.
 
-- <https://kubernetes.io/fr/docs/setup/learning-environment/minikube/>
-- <https://www.terraform.io/docs/providers/kubernetes/guides/getting-started.html>
-- <https://learn.hashicorp.com/terraform/getting-started/intro>
-- <https://itmecho.com/managing-kubernetes-with-terraform/>
-- <https://www.terraform.io/docs/configuration/>
+### Mandatory tools to install
 
-Docker and proxy conf, make sure you have daemon AND client configured
-(respectively with 127.0.0.1:3128 and 172.17.0.1:3128 adresses)
+- a bash compatible shell (bash on linux, git-bash or cygwin on windows)
+- Docker
+- docker-compose
+- terraform
+- kind, or minikube and virtualbox
 
-- <https://medium.com/@saniaky/configure-docker-to-use-a-host-proxy-e88bd988c0aa>
-- <https://nickjanetakis.com/blog/docker-tip-65-get-your-docker-hosts-ip-address-from-in-a-container>
+On linux or mac, prefer `brew` (<https://docs.brew.sh/Homebrew-on-Linux)> to install most of them.
 
-```bash
-#cat > /etc/systemd/system/docker.service.d/http-proxy.conf <<EOF
-[Service]
-Environment="HTTP_PROXY=http://127.0.0.1:3128"
-Environment="HTTPS_PROXY=http://127.0.0.1:3128"
-Environment="NO_PROXY=localhost,127.0.0.1,172.17.0.1,172.30.1.1"
-EOF
-# systemctl daemon-reload
-# systemctl restart docker
+On windows, prefer `scoop` (<https://github.com/lukesampson/scoop>) or `chocolatey`.
 
-# in ~/.docker/config.json (172.17.0.1 is the address of host in docker container)
-{
- "proxies":
- {
-   "default":
-   {
-     "httpProxy": "http://172.17.0.1:3128",
-     "httpsProxy": "http://172.17.0.1:3128",
-     "noProxy": "localhost"
-   }
- }
-}
-```
+Run `build-kind.sh` or `build-minikube.sh` depending on your local cluster install.
+See `LOCAL_K8S_CLUSTER.md` for more infos about it.
 
-## To debug k8s
+You will be able to access all the services via the random NodePort attribued to each service (see in dashboard).
 
-See <https://kubernetes.io/fr/docs/reference/kubectl/cheatsheet/> for reference
-Useful commands :
+You can also access webapp service and rdkapi service via the defined urls "rdk.io/rdkapi" and "rdk.io/webapp" (exposed via an ingress, not a nodePort).
+| Note: If you want to be able to access services via these predefined urls, you will have to define a line in you /etc/hosts file in the following way `<local_cluster_root_ip> rdk.io` |
+| --- |
 
-- `kubectl get pods --all-namespaces`
-- `kubectl describe pod <pod-id>`
+### Development build (add to previous)
 
-## minikube and debug commands
-
-If you have a proxy, use
-
-```bash
-unset http_proxy
-unset https_proxy
-unset HTTP_PROXY
-unset HTTPS_PROXY
-export HTTP_PROXY=http://10.0.2.2:3128 # 10.0.2.2 is the host adress in virtualbox VM
-export HTTPS_PROXY=http://10.0.2.2:3128
-export NO_PROXY=$NO_PROXY,192.168.99.100
-HTTPS_PROXY=http://10.0.2.2:3128 minikube start --docker-env HTTP_PROXY=http://10.0.2.2:3128 \
-                --docker-env HTTPS_PROXY=http://10.0.2.2:3128 \
-                --docker-env NO_PROXY=192.168.99.0/24
-```
-
-For DNS resolution inside minikube VM, you might have to provide resolv.conf before starting
-(see <https://minikube.sigs.k8s.io/docs/tasks/sync/)> :
-
-```bash
-mkdir -p ~/.minikube/files/etc
-cat /etc/resolv.conf > ~/.minikube/files/etc/resolv.conf
-```
-
-You can access you pods binded with service NodePort via the url <http://192.168.99.100:NodePort>/
-(for example <http://192.168.99.100:31146>)
-
-## kind and debug commands
-
-If you have a proxy, check
-
-```bash
-unset http_proxy
-unset https_proxy
-unset HTTP_PROXY
-unset HTTPS_PROXY
-export HTTP_PROXY=http://172.17.0.1:3128  # 172.17.0.1 is the host adress in docker-in-docker(dind)
-export HTTPS_PROXY=http://172.17.0.1:3128
-export NO_PROXY=172.17.0.0/16
-kind create cluster
-```
-
-- `kind get clusters`
-- `kubectl cluster-info --context kind-kind`
-- `kubectl describe pod nginx-example` #debug pod deployement
-- `kubectl get pods nginx-example` #get general infos on pod
-- `kubectl get svc nginx-example` #get bindings for pod
-- `kind delete cluster`
-
-You can access your pod using (see <https://github.com/kubernetes-sigs/kind/issues/99>):
-
-- `docker inspect <containerId> | grep IPAddress` => docker guest ip from host
-- `kubectl describe svc <serviceId>` => docker guest port from host
-
-(for example <http://172.17.0.2:31352/)>
-
-## Use local images in Minikube (no special config for kind)
-
-Follow these steps:
-
-- Set the environment variables with eval $(minikube docker-env)
-- Build the image with the Docker daemon of Minikube (eg docker build -t my-image .)
-- Set the image in the pod spec like the build tag (eg my-image)
-- Set the imagePullPolicy to Never, otherwise Kubernetes will try to download the image.
-
-## Useful resources
-
-- Kompose, tool to convert docker-compose files to k8s YAML (<https://github.com/kubernetes/kompose>)
-- k2tf, tool to convert k8s YAML to Terraform HCL (<https://github.com/sl1pm4t/k2tf>)
+- go 1.13.x minimum
+- Node v12.x minimum
+- make
+- protobuf-compiler
+- kubectl

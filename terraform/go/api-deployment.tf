@@ -27,7 +27,6 @@ resource "kubernetes_deployment" "rdkapi" {
         container {
           name  = "rdkapi"
           image = "randokiak/randokiak-api:0.0.1"
-          #imagePullPolicy = "Never" # for use with minikube
 
           port {
             container_port = 8082

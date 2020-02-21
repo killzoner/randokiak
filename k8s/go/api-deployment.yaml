@@ -28,7 +28,6 @@ spec:
         - name: TOPIC
           value: randokiak-topic
         image: randokiak/randokiak-api:0.0.1
-        #imagePullPolicy: Never # for use with minikube
         name: rdkapi
         ports:
         - containerPort: 8082

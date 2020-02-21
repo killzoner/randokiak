@@ -27,7 +27,6 @@ resource "kubernetes_deployment" "rdkgen" {
         container {
           name  = "rdkgen"
           image = "randokiak/randokiak-gen:0.0.1"
-          #imagePullPolicy = "Never" # for use with minikube
 
           env {
             name  = "PORT"

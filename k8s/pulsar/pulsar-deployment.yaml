@@ -23,7 +23,6 @@ spec:
         - name: PULSAR_MEM
           value: '" -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"'
         image: apachepulsar/pulsar:2.5.0
-        # imagePullPolicy: Never # for use with minikube
         name: pulsar
         ports:
         - containerPort: 8080

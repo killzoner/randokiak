@@ -16,5 +16,4 @@ spec:
         - name: PORT
           value: "50051"
         image: randokiak/randokiak-gen:0.0.1
-        imagePullPolicy: Never # for use with minikube
         name: rdkgen

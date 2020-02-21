@@ -13,21 +13,13 @@ root:
 	echo $(PROTOCOLS)
 	echo $(PROTOCOLS_PATH_OUT)
 
-# generateTest1:
-# 	protoc \
-# 		-I /home/dev/randokiak/go/protocols \
-# 		--plugin=./node_modules/.bin/protoc-gen-ts_proto \
-# 		--ts_proto_out=./src/app/models/protos \
-# 		/home/dev/randokiak/go/protocols/randomprofile.proto \
-# 		&& sed -i 's/global.//g' /home/dev/randokiak/webapp/src/app/models/protos/randomprofile.ts 
-
 generateTest:
 	protoc \
-		-I /home/dev/randokiak/webapp/../go/protocols \
+		-I $(ROOT_DIR)/../go/protocols \
 		--plugin=./node_modules/.bin/protoc-gen-ts_proto \
 		--ts_proto_out=./src/app/models/protos \
 		randomprofile.proto \
-		&& sed -i 's/global.//g' /home/dev/randokiak/webapp/src/app/models/protos/randomprofile.ts
+		&& sed -i 's/global.//g' $(ROOT_DIR)/src/app/models/protos/randomprofile.ts
 		#remove global node references 
 
 generate:

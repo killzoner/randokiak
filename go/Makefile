@@ -1,5 +1,5 @@
 .PHONY: default
-default: install go2proto generateAll;
+default: installSwag install go2proto generateAll;
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -25,9 +25,6 @@ generate:
 # generatefast:
 # 	protoc \
 # 		-I protocols\
-# 		-I gotoproto\
-# 		-I ${GOPATH}/src/github.com/gogo/protobuf/protobuf\
-# 		-I ${GOPATH}/src/github.com/gogo/protobuf/gogoproto\
 # 		--gogoslick_out=plugins=grpc:$(ROOT_DIR)\
 # 		./protocols/random.proto
 
@@ -56,12 +53,8 @@ go2proto:
 	&& sed -i '/interface/d' randomprofile.proto \
 	&& mv randomprofile.proto ../protocols/randomprofile.proto
 
-# to be run with project in GOPATH, since proteus does not support Go modules
-# proteus seems to generate proto v2, don't know why, so exit
-# proteus:
-# 	proteus proto -f ./gotoproto \
-# 		-p $(ROOT_GITHUB)/go/gotoproto/basicprotos/randomprofile \
-# 		--verbose
+installSwag:
+	go get github.com/swaggo/swag/cmd/swag
 
 install:
 	go get \

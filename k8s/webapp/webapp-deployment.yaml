@@ -27,5 +27,4 @@ spec:
         - name: RDKAPI_API_PORT
           value: "8082"
         image: randokiak/webapp:0.0.1
-        # imagePullPolicy: Never # for use with minikube
         name: webapp

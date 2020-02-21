@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: rewrite
+  namespace: default
+spec:
+  rules:
+  - host: rdk.io
+    http:
+      paths:
+      - backend:
+          # warning : DOES NOT WORK WITHOUT A HOST !!!!
+          # You MUST modify /etc/host file => add line  "<root_k8s_ip> rdk.io"
+          # for example : 192.168.99.113 rdk.io
+          serviceName: rdkapi
+          servicePort: 8082
+        path: /rdkapi(/|$)(.*)
+      - backend:
+          serviceName: webapp
+          servicePort: 4200
+        path: /webapp(/|$)(.*)

@@ -1,5 +1,0 @@
-# see https://pulsar.apache.org/docs/en/next/io-elasticsearch-sink/
-
-configs:
-    elasticSearchUrl: "http://elasticsearch:9200"
-    indexName: "randokiak-index"

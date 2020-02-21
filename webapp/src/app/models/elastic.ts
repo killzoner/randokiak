@@ -5,7 +5,7 @@ export class EsRootDoc {
 
 export class EsRootHits {
     constructor(
-        public total: number,
+        public total: {value: number},
         public hits: EsHits[]) { }
 }
 

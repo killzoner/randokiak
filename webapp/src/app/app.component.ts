@@ -2,8 +2,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Environment } from 'src/environments/environment.interface';
-import { Subscription } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Subscription, Subject, forkJoin, of } from 'rxjs';
+import { map, catchError, first, switchMap, delay } from 'rxjs/operators';
 import { ProfileReply } from './models/protos/random';
 import { Profile } from './models/protos/randomprofile';
 import { EsRootDoc } from './models/elastic';
@@ -20,35 +20,55 @@ export class AppComponent implements OnDestroy {
 
   displayedColumns: string[] = ['gender', 'firstName', 'lastName', 'nat'];
   dataSource: Profile[] = [];
+  nbResults = new Subject<number>();
 
   constructor(private http: HttpClient) {
     this.configuration = environment;
 
-    const baseUrl = this.configuration.elasticHttpEndpoint;
-    const indexName = this.configuration.searchIndex;
-
-    this.http.get<EsRootDoc>(
-      `${baseUrl}/${indexName}/_search`)
+    this.esSearch()
       .pipe(
-        map((value) =>
-          value.hits.hits.map(
+        map((value) => {
+          this.nbResults.next(value.hits.total.value);
+          return value.hits.hits.map(
             doc => ProfileReply.fromJSON(doc._source).profile
-          )
+          );
+        }
         ),
-        catchError(() => [])
+        catchError(() => []),
+        first()
       )
       .subscribe((values) => {
-        console.log(values);
         this.dataSource = values;
       });
   }
 
   getMorePeople() {
     const baseUrl = this.configuration.rdkapiHttpEndpoint;
-    this.http.get(`${baseUrl}/api/v1/dumb`).subscribe();
+    this.http.get<{ profiles: { profile: Profile }[] }>(`${baseUrl}/api/v1/dumb`)
+      .pipe(
+        delay(1500), // delay call to ES to give time to process new items
+        switchMap((values) => {
+          const profiles = values.profiles.map((p) => p.profile);
+          return forkJoin([
+            this.esSearch(),
+            of(profiles)
+          ]);
+        }),
+      ).subscribe(([rootDoc, profiles]) => {
+        this.nbResults.next(rootDoc.hits.total.value);
+        this.dataSource = profiles;
+      });
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  private esSearch() {
+    const baseUrl = this.configuration.elasticHttpEndpoint;
+    const indexName = this.configuration.searchIndex;
+
+    return this.http.get<EsRootDoc>(
+      `${baseUrl}/${indexName}/_search`);
   }
 }

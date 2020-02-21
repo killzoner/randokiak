@@ -5,9 +5,11 @@ metadata:
     app: webapp
   name: webapp
 spec:
+  type: "NodePort"
   ports:
   - name: "4200"
     port: 4200
     targetPort: 4200
+    nodePort: 30001 # fixed nodePort example
   selector:
     app: webapp

@@ -1,7 +1,7 @@
 <p>
-  <button mat-raised-button color="primary" (click)="getMorePeople()" matBadge="8" matBadgePosition="after"
+  <button mat-raised-button color="primary" (click)="getMorePeople()" matBadge="!" matBadgePosition="after"
     matBadgeColor="accent">
-    More people !
+    More people ({{ nbResults | async }} so far)
   </button>
 </p>
 
