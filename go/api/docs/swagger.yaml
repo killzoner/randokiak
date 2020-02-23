@@ -4,20 +4,20 @@ info:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: This is a sample server celler server.
+  description: This is public swagger for randokiakapi project.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Swagger randokiakapi
   version: "1.0"
 paths:
-  /dumb:
+  /profiles:
     get:
-      description: Ping
+      description: Get more profiles
       responses:
         "200": {}
-      summary: Ping
+      summary: Profiles
 securityDefinitions:
   ApiKeyAuth:
     in: header

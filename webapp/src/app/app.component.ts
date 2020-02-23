@@ -44,7 +44,7 @@ export class AppComponent implements OnDestroy {
 
   getMorePeople() {
     const baseUrl = this.configuration.rdkapiHttpEndpoint;
-    this.http.get<{ profiles: { profile: Profile }[] }>(`${baseUrl}/api/v1/dumb`)
+    this.http.get<{ profiles: { profile: Profile }[] }>(`${baseUrl}/api/v1/profiles`)
       .pipe(
         delay(1500), // delay call to ES to give time to process new items
         switchMap((values) => {

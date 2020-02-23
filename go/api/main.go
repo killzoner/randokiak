@@ -19,9 +19,9 @@ const (
 	defaultPort = "8082"
 )
 
-// @title Swagger Example API
+// @title Swagger randokiakapi
 // @version 1.0
-// @description This is a sample server celler server.
+// @description This is public swagger for randokiakapi project.
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name API Support
@@ -45,9 +45,9 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 	{
-		dumb := v1.Group("/dumb")
+		api := v1.Group("/profiles")
 		{
-			dumb.GET("", c.Status)
+			api.GET("", c.AskMoreProfiles)
 		}
 	}
 

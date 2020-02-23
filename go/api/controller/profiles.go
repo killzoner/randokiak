@@ -27,12 +27,12 @@ const (
 	defaultTnbFetchProfile = "50"
 )
 
-// Status godoc
-// @Summary Ping
-// @Description Ping
+// AskMoreProfiles godoc
+// @Summary Profiles
+// @Description Get more profiles
 // @Success 200
-// @Router /dumb [get]
-func (controller *Controller) Status(ctx *gin.Context) {
+// @Router /profiles [get]
+func (controller *Controller) AskMoreProfiles(ctx *gin.Context) {
 	genHost := utils.GetEnv("GEN_HOST", defaultGenHost)
 	genPort := utils.GetEnv("GEN_PORT", defaultGenPort)
 	genAddress := fmt.Sprintf("%s:%s", genHost, genPort)

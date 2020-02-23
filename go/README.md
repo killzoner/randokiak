@@ -2,7 +2,7 @@
 
 Install :
 
-- (OPTIONAL) To generate swagger, `make installSwag` (api)
+- (OPTIONAL) To generate swagger, `make swag` (api)
 - (OPTIONAL) To generate protos, run `make`
 - `go build` in each directory
 

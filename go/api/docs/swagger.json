@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample server celler server.",
-        "title": "Swagger Example API",
+        "description": "This is public swagger for randokiakapi project.",
+        "title": "Swagger randokiakapi",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
@@ -17,10 +17,10 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/dumb": {
+        "/profiles": {
             "get": {
-                "description": "Ping",
-                "summary": "Ping",
+                "description": "Get more profiles",
+                "summary": "Profiles",
                 "responses": {
                     "200": {}
                 }

@@ -53,8 +53,8 @@ go2proto:
 	&& sed -i '/interface/d' randomprofile.proto \
 	&& mv randomprofile.proto ../protocols/randomprofile.proto
 
-installSwag:
-	go get github.com/swaggo/swag/cmd/swag
+swag:
+	cd api && swag init
 
 install:
 	go get \
@@ -64,4 +64,5 @@ install:
 		github.com/gogo/protobuf/protoc-gen-gogoslick \
 		github.com/gogo/protobuf/proto \
 		github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
-		github.com/anjmao/go2proto
+		github.com/anjmao/go2proto \
+		get github.com/swaggo/swag/cmd/swag
