@@ -10,12 +10,23 @@ resource "kubernetes_ingress" "lb_ingress" {
   spec {
     rule {
       host = "rdk.io"
+
       http {
         path {
           path = "/rdkapi(/|$)(.*)"
+
           backend {
             service_name = "rdkapi"
             service_port = "8082"
+          }
+        }
+
+        path {
+          path = "/webapp(/|$)(.*)"
+
+          backend {
+            service_name = "webapp"
+            service_port = "4200"
           }
         }
       }

@@ -2,7 +2,7 @@
 set -e
 
 # build projects
-(cd scripts && ./build-projects)
+(cd scripts && ./build-projects.sh)
 
 # load images in kind
 (cd scripts && ./kind-load-images.sh)
