@@ -27,6 +27,14 @@ I put aside the last crossed items, and added Angular on top of Typescript (beca
 The project is named `Randokiak`, a pun with the word 'random' and the name of a company.
 The goal is to... well, generate random characters that you can see in the webapp once it has been swallowed by the whole machinery.
 
+### How it works
+
+- The webapp calls randokiak-api via REST API, which calls randokiak-gen via GRPC to obtain / generate new random profiles (Typescript, Golang, Protobuf / GRPC :white_check_mark:)
+- Randokiak-gen push new profiles to a Pulsar topic (Apache Pulsar :white_check_mark:)
+- A pulsar function sink indexes new profiles in the topic to Elasticsearch (Elasticsearch :white_check_mark:)
+- The webapp calls Elastichsearch to get the profiles
+- Build is managed via Docker/Docker-compose, and deployed to K8S via terraform (Docker, Docker-compose, Kubernetes, Terraform :white_check_mark:)
+
 ### Mandatory tools to install
 
 - a bash compatible shell (bash on linux, git-bash or cygwin on windows)
