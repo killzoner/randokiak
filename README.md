@@ -58,7 +58,7 @@ You can also access webapp service and rdkapi service via the defined urls "rdk.
 
 ### Development build (add to previous)
 
-- go 1.13.x minimum
+- go 1.14.x minimum
 - Node v12.x minimum
 - make
 - protobuf-compiler
