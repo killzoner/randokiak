@@ -2,6 +2,9 @@ version: '3'
 services:
   pulsar:
     image: randokiak/pulsar-elastic-sink:0.0.1
+    ports:
+      - "8080:8080" #broker admin
+      - "6650:6650" #broker service-url
     build:
       context: .
       dockerfile: Dockerfile

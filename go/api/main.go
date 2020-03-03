@@ -41,7 +41,7 @@ const (
 
 func main() {
 	r := gin.Default()
-	c := controller.NewController()
+	c := controller.New()
 
 	v1 := r.Group("/api/v1")
 	{

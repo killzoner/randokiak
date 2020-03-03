@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,9 +11,7 @@ import (
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/gin-gonic/gin"
 
-	"google.golang.org/grpc"
 	"rdk.io/protocols"
-	pb "rdk.io/protocols"
 	"rdk.io/utils"
 )
 
@@ -32,32 +29,17 @@ const (
 // @Description Get more profiles
 // @Success 200
 // @Router /profiles [get]
-func (controller *Controller) AskMoreProfiles(ctx *gin.Context) {
-	genHost := utils.GetEnv("GEN_HOST", defaultGenHost)
-	genPort := utils.GetEnv("GEN_PORT", defaultGenPort)
-	genAddress := fmt.Sprintf("%s:%s", genHost, genPort)
+func (cc *Controller) AskMoreProfiles(ctx *gin.Context) {
+	connectors := Connectors{}
 
-	conn, err := grpc.Dial(genAddress, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-
+	conn := connectors.getGrpcConnection()
 	defer conn.Close()
-	grpcClient := pb.NewRandomizerClient(conn)
+	grpcClient := protocols.NewRandomizerClient(conn)
 
-	pulsarHost := utils.GetEnv("PULSAR_HOST", defaultPulsarHost)
-	pulsarPort := utils.GetEnv("PULSAR_PORT", defaultPulsarPort)
-	pulsarAdress := fmt.Sprintf("pulsar://%s:%s", pulsarHost, pulsarPort)
-
-	pulsarClient, err := pulsar.NewClient(pulsar.ClientOptions{
-		URL: pulsarAdress,
-	})
+	pulsarClient := connectors.getPulsarClient()
 	defer pulsarClient.Close()
 
-	topic := utils.GetEnv("TOPIC", defaultTopic)
-	pulsarProducer, err := pulsarClient.CreateProducer(pulsar.ProducerOptions{
-		Topic: topic,
-	})
+	pulsarProducer := connectors.getPulsarProducer(&pulsarClient)
 	defer pulsarProducer.Close()
 
 	var wg sync.WaitGroup
@@ -67,12 +49,12 @@ func (controller *Controller) AskMoreProfiles(ctx *gin.Context) {
 	 * hangs forever, be sure to initialize size!!!
 	 */
 	nbFetchProfile, _ := strconv.ParseInt(utils.GetEnv("NB_FETCH_PROFILE", defaultTnbFetchProfile), 10, 64)
-	ch := make(chan *pb.ProfileReply, nbFetchProfile)
-	profiles := make([]pb.ProfileReply, 0, nbFetchProfile)
+	ch := make(chan *protocols.ProfileReply, nbFetchProfile)
+	profiles := make([]protocols.ProfileReply, 0, nbFetchProfile)
 
 	for i := 0; i < int(nbFetchProfile); i++ {
 		wg.Add(1)
-		go getProfileAndPushToPulsar(ch, &grpcClient, &pulsarProducer, &wg)
+		go cc.getProfileAndPushToPulsar(ch, &grpcClient, &pulsarProducer, &wg)
 	}
 
 	wg.Wait()
@@ -92,36 +74,50 @@ func (controller *Controller) AskMoreProfiles(ctx *gin.Context) {
 	})
 }
 
-func getProfileAndPushToPulsar(
-	chanProfiles chan *pb.ProfileReply,
-	grpcClient *pb.RandomizerClient,
+func (cc *Controller) getProfileAndPushToPulsar(
+	chanProfiles chan *protocols.ProfileReply,
+	grpcClient *protocols.RandomizerClient,
 	pulsarProducer *pulsar.Producer,
 	wg *sync.WaitGroup,
 ) {
 	defer wg.Done()
 
-	r, err := (*grpcClient).GetProfile(context.Background(), &pb.ProfileRequest{})
+	r, err := (*grpcClient).GetProfile(context.Background(), &protocols.ProfileRequest{})
 	if err != nil {
 		log.Fatalf("could not get profile: %v", err)
 	}
 	log.Printf("Got 1 profil")
 
-	pushToPulsar(pulsarProducer, r)
+	cc.pushToPulsar(pulsarProducer, r)
 
 	//send response to channel
 	chanProfiles <- r
 }
 
-func pushToPulsar(pulsarProducer *pulsar.Producer, message *protocols.ProfileReply) {
+func (cc *Controller) pushToPulsar(
+	pulsarProducer *pulsar.Producer,
+	message *protocols.ProfileReply,
+) pulsar.MessageID {
 
-	json, err := json.Marshal(message)
+	json, _ := json.Marshal(message)
 
-	_, err = (*pulsarProducer).Send(context.Background(), &pulsar.ProducerMessage{
+	MessageID, err := (*pulsarProducer).Send(context.Background(), &pulsar.ProducerMessage{
 		Payload: []byte(json),
 	})
 
 	if err != nil {
-		fmt.Println("Failed to publish message", err)
+		log.Println("Failed to publish message", err)
 	}
-	fmt.Println("Published message")
+	log.Println("Published message")
+
+	return MessageID
+}
+
+func (cc *Controller) unexportedFunction() int {
+	return 8
+}
+
+// ExportedFunction godoc
+func (cc *Controller) ExportedFunction() int {
+	return 8
 }

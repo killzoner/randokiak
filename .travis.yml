@@ -12,7 +12,7 @@ matrix:
                 - GO111MODULE=on
         install: true
         script:
-          - cd $TRAVIS_BUILD_DIR/go/api && go build
+          - cd $TRAVIS_BUILD_DIR/go/api && go build && go test ./...
           - cd $TRAVIS_BUILD_DIR/go/gen && go build
   
       - language: nodejs

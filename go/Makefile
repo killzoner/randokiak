@@ -1,5 +1,5 @@
 .PHONY: default
-default: installSwag install go2proto generateAll;
+default: swag install go2proto generateAll;
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -65,4 +65,4 @@ install:
 		github.com/gogo/protobuf/proto \
 		github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
 		github.com/anjmao/go2proto \
-		get github.com/swaggo/swag/cmd/swag
+		github.com/swaggo/swag/cmd/swag
