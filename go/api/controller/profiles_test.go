@@ -200,13 +200,18 @@ func TestAskMoreProfiles(t *testing.T) {
 		Return(producer).
 		AnyTimes()
 
-	c.AskMoreProfiles(ctx, &impl)
+	// run as background
+	go c.AskMoreProfiles(ctx, &impl)
 
-	// check called default times
-	time.Sleep(500 * time.Millisecond) //not really the best way, but works to assert calls
 	want := 50
-	got := randomizerClient.calls
-
+	var got int
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		got = randomizerClient.calls
+		if got == want || time.Now().After(deadline) {
+			break
+		}
+	}
 	if got != want {
 		t.Fatalf(`Fail! Wanted '%v', got '%v'`, want, got)
 	}
