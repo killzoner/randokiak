@@ -1,5 +1,5 @@
 .PHONY: default
-default: swag install go2proto generateAll;
+default: install swag go2proto protogenAll mockgen;
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
@@ -13,7 +13,7 @@ root:
 	echo $(GOTOPROTOS) 
 	echo $$GOPATH
 
-generate:
+protogen:
 	protoc \
 		-I protocols \
 		-I gotoproto \
@@ -22,27 +22,9 @@ generate:
 		--gogoslick_out=plugins=grpc:$(ROOT_DIR) \
 		${file}
 
-# generatefast:
-# 	protoc \
-# 		-I protocols\
-# 		--gogoslick_out=plugins=grpc:$(ROOT_DIR)\
-# 		./protocols/random.proto
-
-# generatefaster:
-# 	protoc \
-# 		-I protocols \
-# 		--gogofaster_out=plugins=grpc:$(ROOT_DIR)\
-# 		protocols/helloworld.proto
-
-# generateslick:
-# 	protoc \
-# 		-I protocols \
-# 		--gogoslick_out=plugins=grpc:$(ROOT_DIR)\
-# 		protocols/helloworld.proto
-
-generateAll:
+protogenAll:
 	for elt in ${PROTOCOLS}; do \
-		make generate file=$$elt; \
+		make protogen file=$$elt; \
 	done
 
 go2proto: 
@@ -65,4 +47,13 @@ install:
 		github.com/gogo/protobuf/proto \
 		github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
 		github.com/anjmao/go2proto \
-		github.com/swaggo/swag/cmd/swag
+		github.com/swaggo/swag/cmd/swag \
+		github.com/golang/mock/mockgen \
+		github.com/golang/mock/gomock
+
+mockgen:
+	# mock with source mode
+	mockgen -source=api/controller/connectors.go -destination=api/controller/mock_connectors.go -package controller
+	# generate mock does not work for replaced packages like rdk.io/...
+	# we use annotations for this
+	cd api/controller && go generate

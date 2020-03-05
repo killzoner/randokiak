@@ -29,17 +29,16 @@ const (
 // @Description Get more profiles
 // @Success 200
 // @Router /profiles [get]
-func (cc *Controller) AskMoreProfiles(ctx *gin.Context) {
-	connectors := Connectors{}
+func (cc *Controller) AskMoreProfiles(ctx *gin.Context, connectors *IConnectors) {
 
-	conn := connectors.getGrpcConnection()
+	conn := (*connectors).getGrpcConnection()
 	defer conn.Close()
-	grpcClient := protocols.NewRandomizerClient(conn)
+	grpcClient := (*connectors).getGrpcClient(&conn)
 
-	pulsarClient := connectors.getPulsarClient()
+	pulsarClient := (*connectors).getPulsarClient()
 	defer pulsarClient.Close()
 
-	pulsarProducer := connectors.getPulsarProducer(&pulsarClient)
+	pulsarProducer := (*connectors).getPulsarProducer(&pulsarClient)
 	defer pulsarProducer.Close()
 
 	var wg sync.WaitGroup

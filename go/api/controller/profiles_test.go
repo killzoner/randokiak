@@ -4,14 +4,27 @@ package controller
  * Test private methods
  * with same package name
  * Run with go test -v ./...
+ *
+ * mockgen annotations allow generating mock files with `go generate` command
  */
+
+//go:generate mockgen -source=controller.go -destination=mock_controller.go -package controller
+//goo:generate mockgen -source=../../protocols/random.pb.go -package controller -destination=mock_randomizerclient.go
+
+//for save reflection mode
+//goo:generate mockgen -destination=mock/mock_randomizerclient2.go -package mock rdk.io/protocols RandomizerClient
 
 import (
 	"context"
 	"fmt"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/apache/pulsar-client-go/pulsar"
+	"github.com/gin-gonic/gin"
+	gomock "github.com/golang/mock/gomock"
+	"google.golang.org/grpc"
 	"rdk.io/protocols"
 )
 
@@ -25,6 +38,7 @@ func TestUnexportedFunction_(t *testing.T) {
 	}
 }
 
+// implements pulsar.Producer
 type MockPulsarProducer struct{}
 
 var sendmock func() (pulsar.MessageID, error)
@@ -52,11 +66,65 @@ func (cc MockPulsarProducer) Flush() error {
 	panic("not implemented") // TODO: Implement
 }
 func (cc MockPulsarProducer) Close() {
+}
+
+//---------------------
+
+// implements pulsar.Client
+type MockPulsarClient struct{}
+
+func (cc MockPulsarClient) CreateProducer(_ pulsar.ProducerOptions) (pulsar.Producer, error) {
 	panic("not implemented") // TODO: Implement
 }
+func (cc MockPulsarClient) Subscribe(_ pulsar.ConsumerOptions) (pulsar.Consumer, error) {
+	panic("not implemented") // TODO: Implement
+}
+func (cc MockPulsarClient) CreateReader(_ pulsar.ReaderOptions) (pulsar.Reader, error) {
+	panic("not implemented") // TODO: Implement
+}
+func (cc MockPulsarClient) TopicPartitions(topic string) ([]string, error) {
+	panic("not implemented") // TODO: Implement
+}
+func (cc MockPulsarClient) Close() {
+}
+
+//---------------------
+
+type MockRandomizerClient struct {
+	calls int
+}
+
+var getProfile func() (*protocols.ProfileReply, error)
+
+func (cc *MockRandomizerClient) GetProfile(ctx context.Context, in *protocols.ProfileRequest, opts ...grpc.CallOption) (*protocols.ProfileReply, error) {
+	cc.calls++
+	// println(cc.calls)
+	return getProfile()
+}
+
+//---------------------
+
+type MockGrpcClientConnectionWrp struct {
+}
+
+// IGrpcClientConnectionWrp godoc
+func (cc *MockGrpcClientConnectionWrp) Close() error {
+	return nil
+}
+
+// IGrpcClientConnectionWrp godoc
+func (cc *MockGrpcClientConnectionWrp) GetConnection() *grpc.ClientConn {
+	return nil
+}
+
+//---------------------
 
 func getProducer() pulsar.Producer {
 	return &MockPulsarProducer{}
+}
+
+func mockAsIConnector(m *MockIConnectors) IConnectors {
+	return m
 }
 
 func TestPushToPulsar(t *testing.T) {
@@ -72,12 +140,6 @@ func TestPushToPulsar(t *testing.T) {
 	}
 	id, _ := sendmock()
 
-	/**
-	 * TODO: make tests more accurate,
-	 * but it's a quick demo on how we mock
-	 * a do internal (private testing)
-	 */
-
 	want := fmt.Sprintf("%s", id)
 	got := fmt.Sprintf("%s", c.pushToPulsar(&producer, &reply))
 	// we compare string representations as it's different object references
@@ -85,4 +147,67 @@ func TestPushToPulsar(t *testing.T) {
 		t.Fatalf(`Fail! Wanted '%v', got '%v'`, want, got)
 	}
 
+}
+
+func TestAskMoreProfiles(t *testing.T) {
+	c := Controller{}
+	gin.SetMode(gin.TestMode)
+	resp := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(resp)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := NewMockIConnectors(ctrl)
+	impl := mockAsIConnector(m)
+
+	conn := &MockGrpcClientConnectionWrp{}
+	pulsarClient := &MockPulsarClient{}
+	randomizerClient := &MockRandomizerClient{}
+	producer := &MockPulsarProducer{}
+
+	// set return value for mock
+	sendmock = func() (pulsar.MessageID, error) {
+		return pulsar.LatestMessageID(), nil
+	}
+
+	// set return value for mock
+	getProfile = func() (*protocols.ProfileReply, error) {
+		return &protocols.ProfileReply{Profile: &protocols.Profile{}}, nil
+	}
+
+	m.
+		EXPECT().
+		getGrpcConnection().
+		Return(conn).
+		AnyTimes()
+
+	m.
+		EXPECT().
+		getGrpcClient(gomock.Any()).
+		Return(randomizerClient).
+		AnyTimes()
+
+	m.
+		EXPECT().
+		getPulsarClient().
+		Return(pulsarClient).
+		AnyTimes()
+
+	m.
+		EXPECT().
+		getPulsarProducer(gomock.Any()).
+		Return(producer).
+		AnyTimes()
+
+	c.AskMoreProfiles(ctx, &impl)
+
+	// check called default times
+	time.Sleep(500 * time.Millisecond) //not really the best way, but works to assert calls
+	want := 50
+	got := randomizerClient.calls
+
+	if got != want {
+		t.Fatalf(`Fail! Wanted '%v', got '%v'`, want, got)
+	}
 }

@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-openapi/spec v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.7 // indirect
+	github.com/golang/mock v1.3.0
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.5

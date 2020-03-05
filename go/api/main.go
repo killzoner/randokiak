@@ -47,7 +47,10 @@ func main() {
 	{
 		api := v1.Group("/profiles")
 		{
-			api.GET("", c.AskMoreProfiles)
+			api.GET("", func(context *gin.Context) {
+				connectors := controller.NewConnectors()
+				c.AskMoreProfiles(context, &connectors)
+			})
 		}
 	}
 

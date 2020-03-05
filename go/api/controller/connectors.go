@@ -10,9 +10,30 @@ import (
 	"rdk.io/utils"
 )
 
+// GrpcClientConnectionWrp godoc
+type GrpcClientConnectionWrp struct {
+	conn *grpc.ClientConn
+}
+
+// IGrpcClientConnectionWrp godoc
+type IGrpcClientConnectionWrp interface {
+	Close() error
+	GetConnection() *grpc.ClientConn
+}
+
+// Close godoc
+func (cc *GrpcClientConnectionWrp) Close() error {
+	return cc.conn.Close()
+}
+
+// GetConnection godoc
+func (cc *GrpcClientConnectionWrp) GetConnection() *grpc.ClientConn {
+	return cc.conn
+}
+
 // Connectors godoc
 type Connectors struct {
-	conn           *grpc.ClientConn
+	conn           *IGrpcClientConnectionWrp
 	grpcClient     *protocols.RandomizerClient
 	pulsarClient   *pulsar.Client
 	pulsarProducer *pulsar.Producer
@@ -20,12 +41,13 @@ type Connectors struct {
 
 // IConnectors godoc
 type IConnectors interface {
-	getGrpcConnection() *grpc.ClientConn
-	getPulsarClient() *pulsar.Client
-	getPulsarProducer() *pulsar.Producer
+	getGrpcConnection() IGrpcClientConnectionWrp
+	getGrpcClient(conn *IGrpcClientConnectionWrp) protocols.RandomizerClient
+	getPulsarClient() pulsar.Client
+	getPulsarProducer(pulsarClient *pulsar.Client) pulsar.Producer
 }
 
-func (cc *Connectors) getGrpcConnection() *grpc.ClientConn {
+func (cc *Connectors) getGrpcConnection() IGrpcClientConnectionWrp {
 	genHost := utils.GetEnv("GEN_HOST", defaultGenHost)
 	genPort := utils.GetEnv("GEN_PORT", defaultGenPort)
 	genAddress := fmt.Sprintf("%s:%s", genHost, genPort)
@@ -34,7 +56,7 @@ func (cc *Connectors) getGrpcConnection() *grpc.ClientConn {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	return conn
+	return &GrpcClientConnectionWrp{conn: conn}
 }
 
 func (cc *Connectors) getPulsarClient() pulsar.Client {
@@ -54,4 +76,13 @@ func (cc *Connectors) getPulsarProducer(pulsarClient *pulsar.Client) pulsar.Prod
 		Topic: topic,
 	})
 	return pulsarProducer
+}
+
+func (cc *Connectors) getGrpcClient(conn *IGrpcClientConnectionWrp) protocols.RandomizerClient {
+	return protocols.NewRandomizerClient((*conn).GetConnection())
+}
+
+// NewConnectors godoc
+func NewConnectors() IConnectors {
+	return &Connectors{}
 }
