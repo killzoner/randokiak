@@ -12,7 +12,8 @@ matrix:
                 - GO111MODULE=on
         install: true
         script:
-          - cd $TRAVIS_BUILD_DIR/go/api && go build && go clean -testcache && go test ./...
+        # - cd $TRAVIS_BUILD_DIR/go/api && go build && go clean -testcache && go test ./... # Tests without cache
+          - cd $TRAVIS_BUILD_DIR/go/api && go build && go test ./... # Tests with cache
           - cd $TRAVIS_BUILD_DIR/go/gen && go build
   
       - language: nodejs
@@ -26,10 +27,10 @@ matrix:
             - "12.16.0"
         before_install:
             - npm install -g yarn
-        install:
+        install: # could be managed by bazel if moved to bazel stack
             - cd $TRAVIS_BUILD_DIR/webapp && yarn install --frozen-lockfile
         script:
             - cd $TRAVIS_BUILD_DIR/webapp
-            - yarn run build:prod
             - yarn run lint:full
+            - yarn run build:prod
             # - yarn run test ## not set to lighten build

@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { Environment } from 'src/environments/environment.interface';
+import { environment } from './../environments/environment';
+import { Environment } from './../environments/environment.interface';
 import { Subscription, Subject, forkJoin, of } from 'rxjs';
 import { map, catchError, first, switchMap, delay } from 'rxjs/operators';
 import { ProfileReply } from './models/protos/random';
@@ -10,8 +10,8 @@ import { EsRootDoc } from './models/elastic';
 
 @Component({
   selector: 'app-root',
-  styleUrls: ['app.component.sass'],
-  templateUrl: 'app.component.html',
+  styleUrls: ['./app.component.scss'],
+  templateUrl: './app.component.html',
 })
 export class AppComponent implements OnDestroy {
 
