@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	randomdata "github.com/Pallinder/go-randomdata"
 	"golang.org/x/net/context"
@@ -67,6 +70,10 @@ func (s server) GetProfile(ctx context.Context, in *pb.ProfileRequest) (*pb.Prof
 }
 
 func main() {
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM) // transfer signals to interrupt chan
+	defer signal.Stop(interrupt)                              // stop getting signal on interrupt on app end
+
 	port := fmt.Sprintf(":%s", utils.GetEnv("PORT", defaultPort))
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
@@ -77,7 +84,20 @@ func main() {
 	pb.RegisterRandomizerServer(s, &server{})
 	// Register reflection service on grpc server
 	reflection.Register(s)
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+
+	// run as background
+	go func() {
+		log.Printf("server starting on port :%s", port)
+		if err := s.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
+
+	// when interrupt is catched, stop gracefully
+	select {
+	case <-interrupt:
+		break
 	}
+
+	log.Printf("server stopped")
 }
