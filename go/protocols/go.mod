@@ -3,8 +3,7 @@ module protocols
 go 1.14
 
 require (
-	github.com/gogo/protobuf v1.3.1
-	golang.org/x/text v0.3.2 // indirect
+	github.com/gogo/protobuf v1.3.2
 	google.golang.org/grpc v1.27.1
 )
 
